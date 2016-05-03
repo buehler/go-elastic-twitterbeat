@@ -12,7 +12,7 @@
              "type" : "string", "index" : "analyzed", "omit_norms" : true
            }
          }
-       }, {
+        }, {
          "string_fields" : {
            "match" : "*",
            "match_mapping_type" : "string",
@@ -22,17 +22,79 @@
                  "raw" : {"type": "string", "index" : "not_analyzed", "ignore_above" : 256}
                }
            }
-         }
-       } ],
-      "properties": {
-        "text": {
-          "type": "string"
-        },
-        "type": {
-              "type": "string"
-             }
           }
-       }
-      },
-   "template": "twitterbeat-*"
+          } ],
+            "properties": {
+                "@timestamp": {
+                    "type": "date"
+                },
+                "tweet": {
+                    "properties": {
+                        "created_at": {
+                            "type": "date",
+                            "format": "E MMM dd HH:mm:ss Z yyyy"
+                        },
+                        "entities": {
+                            "properties": {
+                                "Hashtags": {
+                                    "properties": {
+                                        "Text": {
+                                            "type": "string",
+                                            "analyzer": "snowball_analyzer_en",
+                                            "fields": {
+                                                "raw": {
+                                                    "type": "string",
+                                                    "index": "not_analyzed"
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "User_mentions": {
+                                    "properties": {
+                                        "Name": {
+                                            "type": "string",
+                                            "analyzer": "snowball_analyzer_en",
+                                            "fields": {
+                                                "raw": {
+                                                    "type": "string",
+                                                    "index": "not_analyzed"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "text": {
+                            "type": "string",
+                            "analyzer": "snowball_analyzer_en",
+                            "fields": {
+                                "raw": {
+                                    "type": "string",
+                                    "index": "not_analyzed"
+                                }
+                            }
+                        },
+                        "user": {
+                            "type": "object",
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "settings": {
+        "index.refresh_interval": "15s",
+        "analysis": {
+            "analyzer": {
+                "snowball_analyzer_en": {
+                    "type": "snowball",
+                    "language": "English"
+                }
+            }
+        }
+    },
+    "template": "twitterbeat-*"
 }
