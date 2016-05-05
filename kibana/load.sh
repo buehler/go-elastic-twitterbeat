@@ -7,10 +7,9 @@
 # ./load.sh -url http://test.com:9200 -index .kibana-test
 
 # The default value of the variable. Initialize your own variables here
-ELASTICSEARCH=http://10.70.64.33:9200
+ELASTICSEARCH=http://localhost:9200
 CURL=curl
 KIBANA_INDEX=".kibana"
-BEAT_CONFIG=".beatconfig"
 
 print_usage() {
   echo "
@@ -83,21 +82,10 @@ esac
 shift 2
 done
 
-if [ -f ${BEAT_CONFIG} ]; then
-  for ln in `cat ${BEAT_CONFIG}`; do
-    BUILD_STRING="${BUILD_STRING}s/${ln}/g;"
-  done
-  SED_STRING=`echo ${BUILD_STRING} | sed 's/;$//'`
-fi
-# Failsafe
-if [ -z ${SED_STRING} ]; then
-  SED_STRING="s/packetbeat-/packetbeat-/g;s/filebeat-/filebeat-/g;s/topbeat-/topbeat-/g;s/winlogonbeat-/winlogonbeat-/g"
-fi
 
 DIR=dashboards
 echo "Loading dashboards to ${ELASTICSEARCH} in ${KIBANA_INDEX}"
 
-# Workaround for: https://github.com/elastic/beats-dashboards/issues/94
 ${CURL} -XPUT "${ELASTICSEARCH}/${KIBANA_INDEX}"
 ${CURL} -XPUT "${ELASTICSEARCH}/${KIBANA_INDEX}/_mapping/search" -d'{"search": {"properties": {"hits": {"type": "integer"}, "version": {"type": "integer"}}}}'
 
